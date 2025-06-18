@@ -1,0 +1,459 @@
+{
+	"info": {
+		"_postman_id": "e5f7a8b3-d6c9-4f15-b2a7-c8d9e0f1b2a3",
+		"name": "EventPulse API",
+		"description": "A collection for testing the EventPulse webhook relay system, including Adyen payment webhook integration.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Webhook Events",
+			"item": [
+				{
+					"name": "Receive Event (Valid HMAC)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "testpass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"live\": \"false\",\n    \"notificationItems\": [\n        {\n            \"NotificationRequestItem\": {\n                \"additionalData\": {\n                    \"expiryDate\": \"03/2030\",\n                    \"authCode\": \"076314\",\n                    \"cardSummary\": \"0002\",\n                    \"cardHolderName\": \"Macauly Dean\",\n                    \"threeds2.cardEnrolled\": \"false\",\n                    \"checkout.cardAddedBrand\": \"amex\",\n                    \"hmacSignature\": \"8cRl76ajqL3j6c8jJiSbYVIg9bBlxOVQ6mS0zuHsAIU=\"\n                },\n                \"amount\": {\n                    \"currency\": \"EUR\",\n                    \"value\": 3179400\n                },\n                \"eventCode\": \"AUTHORISATION\",\n                \"eventDate\": \"2025-06-03T21:27:40+02:00\",\n                \"merchantAccountCode\": \"AdyenMerchantAccountCode\",\n                \"merchantReference\": \"PLAYGROUND-1748978860503\",\n                \"operations\": [\n                    \"CANCEL\",\n                    \"CAPTURE\",\n                    \"REFUND\"\n                ],\n                \"paymentMethod\": \"amex\",\n                \"pspReference\": \"BHP92XTBGJ522P75\",\n                \"reason\": \"076314: 0002: 03/2030\",\n                \"success\": \"true\"\n            }\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/event/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"event",
+								""
+							]
+						},
+						"description": "Send a valid Adyen webhook event with correct HMAC signature. This should return a 202 Accepted response."
+					},
+					"response": []
+				},
+				{
+					"name": "Receive Event (Invalid HMAC)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "testpass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"live\": \"false\",\n    \"notificationItems\": [\n        {\n            \"NotificationRequestItem\": {\n                \"additionalData\": {\n                    \"expiryDate\": \"03/2030\",\n                    \"authCode\": \"076314\",\n                    \"cardSummary\": \"0002\",\n                    \"cardHolderName\": \"Macauly Dean\",\n                    \"threeds2.cardEnrolled\": \"false\",\n                    \"checkout.cardAddedBrand\": \"amex\",\n                    \"hmacSignature\": \"InvalidSignatureHere\"\n                },\n                \"amount\": {\n                    \"currency\": \"EUR\",\n                    \"value\": 3179400\n                },\n                \"eventCode\": \"AUTHORISATION\",\n                \"eventDate\": \"2025-06-03T21:27:40+02:00\",\n                \"merchantAccountCode\": \"AdyenMerchantAccountCode\",\n                \"merchantReference\": \"PLAYGROUND-1748978860503\",\n                \"operations\": [\n                    \"CANCEL\",\n                    \"CAPTURE\",\n                    \"REFUND\"\n                ],\n                \"paymentMethod\": \"amex\",\n                \"pspReference\": \"BHP92XTBGJ522P75\",\n                \"reason\": \"076314: 0002: 03/2030\",\n                \"success\": \"true\"\n            }\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/event/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"event",
+								""
+							]
+						},
+						"description": "Send an Adyen webhook event with an invalid HMAC signature. This should return a 401 Unauthorized response."
+					},
+					"response": []
+				},
+				{
+					"name": "Receive Event (CAPTURE)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "testpass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"live\": \"false\",\n    \"notificationItems\": [\n        {\n            \"NotificationRequestItem\": {\n                \"additionalData\": {\n                    \"expiryDate\": \"03/2030\",\n                    \"cardSummary\": \"0002\",\n                    \"cardHolderName\": \"Macauly Dean\",\n                    \"hmacSignature\": \"8cRl76ajqL3j6c8jJiSbYVIg9bBlxOVQ6mS0zuHsAIU=\"\n                },\n                \"amount\": {\n                    \"currency\": \"EUR\",\n                    \"value\": 3179400\n                },\n                \"eventCode\": \"CAPTURE\",\n                \"eventDate\": \"2025-06-03T21:30:40+02:00\",\n                \"merchantAccountCode\": \"AdyenMerchantAccountCode\",\n                \"merchantReference\": \"PLAYGROUND-1748978860503\",\n                \"operations\": [\n                    \"REFUND\"\n                ],\n                \"paymentMethod\": \"amex\",\n                \"pspReference\": \"CAPTURE92XTBGJ522P75\",\n                \"reason\": \"Captured payment\",\n                \"success\": \"true\"\n            }\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/event/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"event",
+								""
+							]
+						},
+						"description": "Send a CAPTURE event webhook from Adyen. This should return a 202 Accepted response."
+					},
+					"response": []
+				},
+				{
+					"name": "Receive Event (REFUND)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "testpass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"live\": \"false\",\n    \"notificationItems\": [\n        {\n            \"NotificationRequestItem\": {\n                \"additionalData\": {\n                    \"hmacSignature\": \"8cRl76ajqL3j6c8jJiSbYVIg9bBlxOVQ6mS0zuHsAIU=\"\n                },\n                \"amount\": {\n                    \"currency\": \"EUR\",\n                    \"value\": 3179400\n                },\n                \"eventCode\": \"REFUND\",\n                \"eventDate\": \"2025-06-03T22:15:40+02:00\",\n                \"merchantAccountCode\": \"AdyenMerchantAccountCode\",\n                \"merchantReference\": \"PLAYGROUND-1748978860503\",\n                \"originalReference\": \"BHP92XTBGJ522P75\",\n                \"paymentMethod\": \"amex\",\n                \"pspReference\": \"REFUND92XTBGJ522P75\",\n                \"reason\": \"Customer requested refund\",\n                \"success\": \"true\"\n            }\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/event/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"event",
+								""
+							]
+						},
+						"description": "Send a REFUND event webhook from Adyen. This should return a 202 Accepted response."
+					},
+					"response": []
+				},
+				{
+					"name": "Receive Event (CANCELLATION)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "testpass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"live\": \"false\",\n    \"notificationItems\": [\n        {\n            \"NotificationRequestItem\": {\n                \"additionalData\": {\n                    \"hmacSignature\": \"8cRl76ajqL3j6c8jJiSbYVIg9bBlxOVQ6mS0zuHsAIU=\"\n                },\n                \"amount\": {\n                    \"currency\": \"EUR\",\n                    \"value\": 3179400\n                },\n                \"eventCode\": \"CANCELLATION\",\n                \"eventDate\": \"2025-06-03T22:20:40+02:00\",\n                \"merchantAccountCode\": \"AdyenMerchantAccountCode\",\n                \"merchantReference\": \"PLAYGROUND-1748978860503\",\n                \"originalReference\": \"BHP92XTBGJ522P75\",\n                \"paymentMethod\": \"amex\",\n                \"pspReference\": \"CANCEL92XTBGJ522P75\",\n                \"reason\": \"Payment cancelled\",\n                \"success\": \"true\"\n            }\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/event/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"event",
+								""
+							]
+						},
+						"description": "Send a CANCELLATION event webhook from Adyen. This should return a 202 Accepted response."
+					},
+					"response": []
+				},
+				{
+					"name": "Receive Event (No Auth)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"live\": \"false\",\n    \"notificationItems\": [\n        {\n            \"NotificationRequestItem\": {\n                \"additionalData\": {\n                    \"expiryDate\": \"03/2030\",\n                    \"authCode\": \"076314\",\n                    \"cardSummary\": \"0002\",\n                    \"cardHolderName\": \"Macauly Dean\",\n                    \"threeds2.cardEnrolled\": \"false\",\n                    \"checkout.cardAddedBrand\": \"amex\",\n                    \"hmacSignature\": \"8cRl76ajqL3j6c8jJiSbYVIg9bBlxOVQ6mS0zuHsAIU=\"\n                },\n                \"amount\": {\n                    \"currency\": \"EUR\",\n                    \"value\": 3179400\n                },\n                \"eventCode\": \"AUTHORISATION\",\n                \"eventDate\": \"2025-06-03T21:27:40+02:00\",\n                \"merchantAccountCode\": \"AdyenMerchantAccountCode\",\n                \"merchantReference\": \"PLAYGROUND-1748978860503\",\n                \"operations\": [\n                    \"CANCEL\",\n                    \"CAPTURE\",\n                    \"REFUND\"\n                ],\n                \"paymentMethod\": \"amex\",\n                \"pspReference\": \"BHP92XTBGJ522P75\",\n                \"reason\": \"076314: 0002: 03/2030\",\n                \"success\": \"true\"\n            }\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/event/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"event",
+								""
+							]
+						},
+						"description": "Send an Adyen webhook event without authentication. This should return a 401 Unauthorized response."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for receiving webhook events from Adyen."
+		},
+		{
+			"name": "Relay Settings",
+			"item": [
+				{
+					"name": "List All Relay Settings",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "testpass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/relay-settings/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"relay-settings",
+								""
+							]
+						},
+						"description": "Get a list of all relay settings configured in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Relay Setting",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "testpass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Relay Setting\",\n    \"description\": \"Relay setting for testing\",\n    \"source_host\": \"127.0.0.1\",\n    \"forward_url\": \"https://webhook.site/your-unique-id\",\n    \"event_code\": \"AUTHORISATION\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/relay-settings/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"relay-settings",
+								""
+							]
+						},
+						"description": "Create a new relay setting for forwarding webhook events."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Relay Setting",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "testpass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/relay-settings/{{relay_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"relay-settings",
+								"{{relay_id}}"
+							]
+						},
+						"description": "Get details for a specific relay setting by its ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Relay Setting",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "testpass",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/relay-settings/{{relay_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"relay-settings",
+								"{{relay_id}}"
+							]
+						},
+						"description": "Delete a specific relay setting by its ID."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing relay settings."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "relay_id",
+			"value": "replace-with-actual-relay-id",
+			"type": "string"
+		}
+	]
+}

@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+    db:
+        container_name: pg_container
+        image: postgres:17
+        restart: always
+        environment:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: EventPulse_DEV
+          stdin_open: true
+          tty: true
+        networks:
+          - docker-network
+        ports:
+          - "5432:5432"
+    redis:
+        container_name: redis
+        image: redis:7.4.1-alpine
+        restart: always
+        ports:
+            - "6379:6379"
+        networks:
+          - docker-network
+    event-pulse:
+        build: .
+        container_name: event-pulse
+        restart: always
+        command: >
+            sh -c "python manage.py migrate &&
+                  uvicorn config.asgi:application --host 0.0.0.0"
+        ports:
+            - "8050:8000"
+        env_file: .env
+        depends_on:
+          - pgbouncer
+        networks:
+          - docker-network
+    celery:
+        container_name: celery
+        build: .
+        restart: always
+        command: celery -A config worker --loglevel=info --pool=prefork --concurrency=100 --max-tasks-per-child=100 --max-memory-per-child=200 --without-mingle --without-gossip --without-heartbeat
+        depends_on:
+          - web
+          - redis
+          - pgbouncer
+        env_file: .env
+        networks:
+          - docker-network
+    celery-beat:
+        container_name: celery-beat
+        build: .
+        restart: always
+        command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+        depends_on:
+          - event-pulse
+          - celery
+          - redis
+          - pgbouncer
+        env_file: .env
+        networks:
+          - docker-network
+networks:
+  docker-network:
+    external: true
