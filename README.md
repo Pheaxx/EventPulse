@@ -103,10 +103,9 @@ cp .env.example .env  # Set up environment variables
 docker-compose up --build
 ```
 
-### 3. Apply Migrations & Create Superuser
+### 3. Create Superuser
 
 ```bash
-docker-compose exec web python src/manage.py migrate
 docker-compose exec web python src/manage.py createsuperuser
 ```
 
@@ -152,7 +151,7 @@ docker-compose exec web python src/manage.py createsuperuser
 
 ---
 
-## 📚 Warnings
+## ⚠️ Warnings
 
 - This project is a work in progress and is not production ready.
 - I properly have made mistakes, use this project at your own risk.
