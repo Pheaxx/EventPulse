@@ -125,7 +125,7 @@ docker-compose exec web python src/manage.py createsuperuser
 
 ## 📊 Event Flow
 
-![Alt text for the image](EventPulse_Florchart.png)
+![Alt text for the image](EventPulse-Flow.png)
 
 ---
 
