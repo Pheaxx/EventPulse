@@ -94,7 +94,7 @@ EventPulse/
 ```bash
 git clone https://github.com/yourusername/eventpulse.git
 cd eventpulse
-cp .env.example .env  # Set up environment variables
+cp -r envs-example envs  # Set up environment variables
 ```
 
 ### 2. Run with Docker
@@ -106,7 +106,7 @@ docker-compose up --build
 ### 3. Create Superuser
 
 ```bash
-docker-compose exec web python src/manage.py createsuperuser
+docker-compose exec event-pulse python src/manage.py createsuperuser
 ```
 
 ### 4. Access

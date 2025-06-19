@@ -1,18 +1,10 @@
-version: '3'
-
 services:
-    db:
-        container_name: pg_container
+    postgres:
+        container_name: postgres
         image: postgres:17
         restart: always
-        environment:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: root
-          POSTGRES_DB: EventPulse_DEV
-          stdin_open: true
-          tty: true
-        networks:
-          - docker-network
+        env_file:
+          - envs/.env_db
         ports:
           - "5432:5432"
     redis:
@@ -21,8 +13,6 @@ services:
         restart: always
         ports:
             - "6379:6379"
-        networks:
-          - docker-network
     event-pulse:
         build: .
         container_name: event-pulse
@@ -32,36 +22,27 @@ services:
                   uvicorn config.asgi:application --host 0.0.0.0"
         ports:
             - "8050:8000"
-        env_file: .env
+        env_file: envs/.env_django_celery
         depends_on:
-          - pgbouncer
-        networks:
-          - docker-network
+          - postgres
     celery:
         container_name: celery
         build: .
         restart: always
         command: celery -A config worker --loglevel=info --pool=prefork --concurrency=100 --max-tasks-per-child=100 --max-memory-per-child=200 --without-mingle --without-gossip --without-heartbeat
         depends_on:
-          - web
-          - redis
-          - pgbouncer
-        env_file: .env
-        networks:
-          - docker-network
-    celery-beat:
-        container_name: celery-beat
-        build: .
-        restart: always
-        command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-        depends_on:
           - event-pulse
-          - celery
+          - postgres
           - redis
-          - pgbouncer
-        env_file: .env
-        networks:
-          - docker-network
-networks:
-  docker-network:
-    external: true
+        env_file: envs/.env_django_celery
+# NOT IMPLEMENTED YET
+#    celery-beat:
+#        container_name: celery-beat
+#        build: .
+#        restart: always
+#        command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+#        depends_on:
+#          - event-pulse
+#          - celery
+#          - redis
+#        env_file: envs/.env_django_celery
