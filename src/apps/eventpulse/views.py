@@ -27,8 +27,8 @@ def events(request):
     isvalid_hmac = is_valid_hmac_notification(copy.deepcopy(request.data), hmac_key)
 
     # extract pspReference and eventCode from the webhook payload
-    psp_reference = request.data['notificationItems'][0]['NotificationRequestItem'].get('pspReference', 'unknown'),
-    event_code = request.data['notificationItems'][0]['NotificationRequestItem'].get('eventCode', 'unknown'),
+    psp_reference = request.data['notificationItems'][0]['NotificationRequestItem'].get('pspReference', 'unknown')
+    event_code = request.data['notificationItems'][0]['NotificationRequestItem'].get('eventCode', 'unknown')
 
     # check if hmac is valid, if not return HTTP 401
     if not isvalid_hmac[0]:
@@ -52,9 +52,9 @@ def events(request):
         return Response({"message":"HMAC Invalid"},status=status.HTTP_401_UNAUTHORIZED)
 
     # check for idempotency
-    is_duplicate_event = Events.objects.filter(psp_reference=psp_reference,event_code=event_code).exists()
+    is_duplicate_event = Events.objects.filter(psp_reference=psp_reference,event_code=event_code)
 
-    if is_duplicate_event:
+    if is_duplicate_event.exists():
         # if event has been sent before, create log and return 202 to fulfill Adyen's requirement to get an HTTP 202 back
         create_log({
             "uuid": event_uuid,
@@ -69,7 +69,7 @@ def events(request):
                 "timestamp": request.data['notificationItems'][0]['NotificationRequestItem'].get('eventDate', 'unknown')
             }
         })
-        return Response(status=status.HTTP_202_ACCEPTED)
+        return Response({"message":"duplicate event"},status=status.HTTP_202_ACCEPTED)
     else:
         # if new event, process, validate and save the event data in the database
         event_data = {
